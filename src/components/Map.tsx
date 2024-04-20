@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef ,useState} from "react";
+import { useEffect, useRef, useState } from "react";
 import "ol/ol.css";
 import OlMap from "ol/Map";
 import View from "ol/View";
@@ -9,14 +9,14 @@ import { Tile as TileLayer, Vector as VectorLayer } from "ol/layer";
 import { Type } from "ol/geom/Geometry";
 
 const Map = ({}) => {
-    const mapContainer = useRef<HTMLDivElement>(null);
-    const [type, setType] = useState<string>("None");
-    const source = useRef(new VectorSource({ wrapX: false }));
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const [type, setType] = useState<string>("None");
+  const source = useRef(new VectorSource({ wrapX: false }));
 
-    const draw = useRef<Draw|null>(null);
-    const olMap = useRef<OlMap|null>(null);
+  const draw = useRef<Draw | null>(null);
+  const olMap = useRef<OlMap | null>(null);
 
-// let draw;
+  // let draw;
   // on component mount create the map and set the map refrences to the state
   useEffect(() => {
     if (!mapContainer.current) {
@@ -41,49 +41,45 @@ const Map = ({}) => {
       }),
     });
 
-
     olMap.current.setTarget(mapContainer.current);
-  
+
     // on component unmount remove the map refrences to avoid unexpected behaviour
     return () => {
-        olMap.current?.setTarget(undefined);
+      olMap.current?.setTarget(undefined);
     };
   }, []);
 
   const handleTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedType = event.target.value as Type|'None';
+    const selectedType = event.target.value as Type | "None";
     setType(selectedType);
     olMap.current?.removeInteraction(draw.current!);
 
-    if (selectedType === 'None') {
+    if (selectedType === "None") {
       return;
-    } 
-      draw.current = new Draw({
-        source: source.current,
-        type: selectedType,
-      });
-
-      olMap.current?.addInteraction(draw.current);
     }
-  
-  return (
-    <>
-      <div
-        ref={mapContainer}
-        className="absolute inset-0"
-        style={{ width: "65rem", height: "36rem" }}
-      />
-      <div>
-        <select value={type} onChange={handleTypeChange}>
-        <option value="Point">Point</option>
-            <option value="LineString">LineString</option>
-            <option value="Polygon">Polygon</option>
-            <option value="Circle">Circle</option>
-            <option value="None">None</option>
+    draw.current = new Draw({
+      source: source.current,
+      type: selectedType,
+    });
 
+    olMap.current?.addInteraction(draw.current);
+  };
+
+  return (
+    <div className="map col-6">
+      <h1>Drawing</h1>
+      <div ref={mapContainer} className="w-100 h-75" />
+      <div className="mt-2">
+        <label htmlFor="type">Select Type</label>
+        <select className="ms-3" value={type} onChange={handleTypeChange}>
+          <option value="Point">Point</option>
+          <option value="LineString">LineString</option>
+          <option value="Polygon">Polygon</option>
+          <option value="Circle">Circle</option>
+          <option value="None">None</option>
         </select>
       </div>
-    </>
+    </div>
   );
 };
 export default Map;
