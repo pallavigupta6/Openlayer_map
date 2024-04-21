@@ -20,7 +20,6 @@ import { Coordinate } from "ol/coordinate";
 const MeasurementMap = () => {
   // state to store selected geometry type
   const [type, setType] = useState<string>("");
-
   // Creating references for various elements and state variables
   const mapContainer = useRef<HTMLDivElement>(null);
   const source = useRef(new VectorSource());
