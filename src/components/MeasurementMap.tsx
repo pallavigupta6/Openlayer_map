@@ -1,24 +1,28 @@
 "use client";
+// Importing necessary modules from React and OpenLayers
 import { useState, useRef, useEffect } from "react";
+
 import View from "ol/View";
 import OlMap from "ol/Map.js";
 import Overlay from "ol/Overlay.js";
 import { Draw } from "ol/interaction";
 import { Tile as TileLayer, Vector as VectorLayer } from "ol/layer";
-import { Type } from "ol/geom/Geometry";
 import { getArea, getLength } from "ol/sphere";
 import { LineString, Polygon } from "ol/geom";
 import { OSM, Vector as VectorSource } from "ol/source";
 import { unByKey } from "ol/Observable";
-import Sketch from "ol//Feature";
+import Sketch from "ol/Feature";
 import MapBrowserEvent from "ol/MapBrowserEvent";
 import { EventsKey } from "ol/events";
 import { Coordinate } from "ol/coordinate";
 
+// Defining a functional component named MeasurementMap
 const MeasurementMap = () => {
-  const mapContainer = useRef<HTMLDivElement>(null);
-
+  // state to store selected geometry type
   const [type, setType] = useState<string>("");
+
+  // Creating references for various elements and state variables
+  const mapContainer = useRef<HTMLDivElement>(null);
   const source = useRef(new VectorSource());
   const draw = useRef<Draw | null>(null);
   const olMap = useRef<OlMap | null>(null);
@@ -28,6 +32,7 @@ const MeasurementMap = () => {
   const measureTooltipElement = useRef<HTMLElement | null>(null);
   const measureTooltip = useRef<Overlay | null>(null);
 
+  // Function to handle pointer movement on the map
   const pointerMoveHandler = function (e: MapBrowserEvent<UIEvent>) {
     if (e.dragging) {
       return;
@@ -42,14 +47,14 @@ const MeasurementMap = () => {
         helpMsg = "Click to continue drawing the line";
       }
     }
+
     if (helpTooltipElement.current)
       helpTooltipElement.current.innerHTML = helpMsg;
     helpTooltip.current?.setPosition(e.coordinate);
-    console.info("help", helpTooltipElement.current);
-
     helpTooltipElement.current?.classList.remove("hidden");
   };
 
+  // Function to create a help tooltip
   const createHelpTooltip = () => {
     if (helpTooltipElement.current) {
       helpTooltipElement.current?.parentNode?.removeChild(
@@ -67,6 +72,7 @@ const MeasurementMap = () => {
     console.info(measureTooltip.current);
   };
 
+  // Function to create a measure tooltip
   const createMeasureTooltip = () => {
     if (measureTooltipElement.current) {
       measureTooltipElement.current?.parentNode?.removeChild(
@@ -86,6 +92,7 @@ const MeasurementMap = () => {
     olMap.current?.addOverlay(measureTooltip.current);
   };
 
+  // Function to handle change in measurement type
   const handleTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     olMap.current?.removeInteraction(draw.current!);
     const selectedType = event.target.value;
@@ -103,7 +110,6 @@ const MeasurementMap = () => {
     draw.current.on("drawstart", function (e) {
       // set sketch
       sketch.current = e.feature;
-      console.info("e", e);
 
       let tooltipCoord: Coordinate;
 
@@ -136,7 +142,7 @@ const MeasurementMap = () => {
     });
   };
 
-  // Calculation of line & Polygon
+  // Function to format length measurement
   const formatLength = (line: LineString) => {
     const length = getLength(line);
     return length > 100
@@ -144,6 +150,7 @@ const MeasurementMap = () => {
       : `${length.toFixed(2)} m`;
   };
 
+  // Function to format area measurement
   const formatArea = (polygon: Polygon) => {
     const area = getArea(polygon);
     return area > 10000
@@ -151,6 +158,7 @@ const MeasurementMap = () => {
       : `${area.toFixed(2)} m²`;
   };
 
+  // Effect hook to initialize the map when the component mounts
   useEffect(() => {
     if (!mapContainer.current) {
       return;
@@ -184,6 +192,7 @@ const MeasurementMap = () => {
     };
   }, []);
 
+  // Rendering the MeasurementMap component
   return (
     <div className="map col-6">
       <h1>Measurement</h1>
